@@ -58,6 +58,7 @@ private:
     bool isEditingSteamTemperature = false;
     //count for brew screen
     unsigned long brewStartTime = 0;
+    unsigned long lastBrewTime = 0;
     unsigned long lastFrameTime = 0;
     // count for steam screen
     unsigned long steamStartTime = 0;
@@ -94,6 +95,7 @@ public:
     uint8_t getSteamPercentage() const       { return steamPercentage; }
     //Encoder Function
     bool beginInput(int pinA, int pinB, int pinBtn);
+    void update();
     void pollInput();
     bool consumeClick();  
     int  consumeStep(); 

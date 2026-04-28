@@ -39,6 +39,15 @@ void IRAM_ATTR Menu::onAChangeISR() {
     _encFired = true;
 }
 
+// input handling, call frequently from main loop 
+void Menu::update() {
+    pollInput();
+
+    int step = consumeStep();
+    if (step != 0) moveSelection(step > 0);
+    if (consumeClick()) select();
+}
+
 void Menu::pollInput() {
     // === Encoder accumulation (keep original logic) ===
     if (_encFired) {
@@ -98,18 +107,9 @@ void Menu::setState(MenuState s) {
     currentState = s;
     
     // Reset listSelection and scrollOffset to avoid cross-page state residue
-    if (s == MAIN_MENU) {
-        listSelection = 0;
-        scrollOffset = 0;
-    } else if (s == SETTING_PAGE || s == MODE_PAGE || s == PROFILE_PAGE) {
-        // These pages use listSelection, reset to 0
-        listSelection = 0;
-        scrollOffset = 0;
-    } else {
-        // STEAM_PAGE, BREW_PAGE, WATER_PAGE don't use listSelection, but reset to 0 just in case
-        listSelection = 0;
-        scrollOffset = 0;
-    }
+    listSelection = 0;
+    scrollOffset = 0;
+    
     
     if (s == STEAM_PAGE) {
         steamStartTime = millis();
@@ -612,6 +612,12 @@ void Menu::showSidebarInfo() {
     display.setCursor(73, 40);
     display.print("PSI:");
     display.print(currentPressurePsi, 1);
+
+    display.println();
+    display.setCursor(73, 50);
+    display.print("Time: ");
+    display.print(lastBrewTime);
+    display.println("s");
 }
 void Menu::showBrewPage() {
     unsigned long now = millis();
@@ -630,10 +636,11 @@ void Menu::showBrewPage() {
     display.setTextColor(SH110X_WHITE);
     display.println("BREW");
 
-    uint32_t sec = (now - brewStartTime) / 1000;
+    // uint32_t sec = (now - brewStartTime) / 1000;
+    lastBrewTime = (now - brewStartTime) / 1000;
     display.setCursor(70, 12);
     display.print("Time: ");
-    display.print(sec);
+    display.print(lastBrewTime);
     display.println("s");
 
     display.setCursor(70, 24);

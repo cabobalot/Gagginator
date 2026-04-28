@@ -82,11 +82,7 @@ void uiLoop(void * pvParameters) {
   for(;;) {
     // ===================== UI input & rendering =====================
 
-    menu.pollInput();
-    
-    int step = menu.consumeStep();
-    if (step != 0) menu.moveSelection(step > 0);
-    if (menu.consumeClick()) menu.select();
+    menu.update();
 
     // Targets from UI
     // Select corresponding temperature based on current mode
