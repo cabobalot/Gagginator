@@ -60,10 +60,6 @@ private:
     unsigned long brewStartTime = 0;
     unsigned long lastBrewTime = 0;
     unsigned long lastFrameTime = 0;
-    // count for steam screen
-    unsigned long steamStartTime = 0;
-    //count for water page
-    unsigned long waterStartTime = 0; 
     int currentFrame = 0;
     const unsigned long frameInterval = 500;
 
@@ -105,8 +101,6 @@ public:
     void startBrewAnimation();    // start animation 
     void stopBrewAnimation(); 
     void showSteamPage();
-    //Steam page
-    void startSteamTimer() { steamStartTime = millis(); }
     //state control
     void setState(MenuState s);     // Only switch page state, don't draw directly
     void resetBrewAnimation();

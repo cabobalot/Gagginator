@@ -110,19 +110,14 @@ void Menu::setState(MenuState s) {
     listSelection = 0;
     scrollOffset = 0;
     
-    
-    if (s == STEAM_PAGE) {
-        steamStartTime = millis();
-        lastFrameTime = 0;
-        currentFrame = 0;
-    }else if (s == BREW_PAGE) {
-    brewStartTime = millis();
-    lastFrameTime = 0;
-    currentFrame  = 0;
-    }else if (s == WATER_PAGE) {               
-        waterStartTime = millis();
-        lastFrameTime = 0;
-        currentFrame  = 0;
+    switch (s) { // this is awkward...
+        case STEAM_PAGE: // cascade
+        case BREW_PAGE: // cascade
+        case WATER_PAGE:
+            resetBrewAnimation();
+            break;
+        default:
+            break;
     }
 }
 
@@ -131,6 +126,7 @@ void Menu::resetBrewAnimation() {
     lastFrameTime  = 0;
     currentFrame   = 0;
 }
+
 void Menu::show() {
     display.clearDisplay();
     if (currentState == MAIN_MENU) {
@@ -154,6 +150,7 @@ void Menu::show() {
     display.display();
 }
 
+// TODO define these setting ranges in a cleaner way.
 void Menu::moveSelection(bool up) {
     if (currentState == SETTING_PAGE && isEditingBrewTemperature) {
             if (up && brewTemperature < 150) brewTemperature++;
@@ -267,6 +264,8 @@ void Menu::setCurrentPressure(float psi) {
 void Menu::setCurrentTemperature(float temp) {
     currentTemperature = temp;
 }
+
+// move the menu state machine depending on what is selected
 void Menu::select() {
     if (currentState == MAIN_MENU) {
         if (listSelection == 2) {
@@ -471,19 +470,24 @@ void Menu::select() {
         }
     }
     else if (currentState == MODE_PAGE) {
-        if (listSelection == 0) {          // Steam
-            currentState = STEAM_PAGE;     // Switch to Steam page
-        } else if (listSelection == 1) {  // Brew
-            currentState = BREW_PAGE;    // Switch state
-            brewStartTime = millis();
-        } else if (listSelection == 2) {   // Water
-            currentState = WATER_PAGE;     // New
-            waterStartTime = millis();
-        } else if (listSelection == 3) {  
-            // Select Back to return to main menu
-            currentState = MAIN_MENU;
-            listSelection = 0;
-            scrollOffset = 0;
+        switch (listSelection) {
+            case 0: // Steam
+                currentState = STEAM_PAGE;
+                resetBrewAnimation();
+                break;
+            case 1: // Brew
+                currentState = BREW_PAGE;
+                resetBrewAnimation();
+                break;
+            case 2: // Water
+                currentState = WATER_PAGE;
+                resetBrewAnimation();
+                break;
+            case 3: // Back
+                currentState = MAIN_MENU;
+                listSelection = 0;
+                scrollOffset = 0;
+                break;
         }
     }
 }
@@ -674,10 +678,10 @@ void Menu::showSteamPage() {
     display.setTextColor(SH110X_WHITE);
     display.println("STEAM");
     
-    uint32_t sec = (now - steamStartTime) / 1000;
+    lastBrewTime = (now - brewStartTime) / 1000;
     display.setCursor(70, 12);
     display.print("Time: ");
-    display.print(sec);
+    display.print(lastBrewTime);
     display.println("s");
 
     display.setCursor(70, 24);
@@ -710,10 +714,10 @@ void Menu::showWaterPage() {
     display.setTextColor(SH110X_WHITE);
     display.println("WATER");
 
-    uint32_t sec = (now - waterStartTime) / 1000;
+    lastBrewTime = (now - brewStartTime) / 1000;
     display.setCursor(70, 12);
     display.print("Time: ");
-    display.print(sec);
+    display.print(lastBrewTime);
     display.println("s");
 
     display.setCursor(70, 24);

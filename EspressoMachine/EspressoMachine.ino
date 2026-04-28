@@ -139,7 +139,7 @@ void uiLoop(void * pvParameters) {
         case BREW_STATE:
           brewStartTimeMs = millis();  // Record brew start time
           menu.setState(BREW_PAGE);
-          menu.resetBrewAnimation();
+          menu.resetBrewAnimation(); //todo what is this?
           break;
         case STEAM_STATE:
           menu.setState(STEAM_PAGE);
@@ -187,11 +187,11 @@ void mainLoop(void * pvParameters) {
         unsigned long brewElapsedMs = millis() - brewStartTimeMs;
         unsigned long preinfuseTimeMs = preinfuseTime * 1000;  // Convert to milliseconds
         
-        // Use preinfusion pressure (20 PSI) for first 5 seconds, then use 70 PSI
+        // Use preinfusion pressure to start, then switch to brew pressure
         if (brewElapsedMs < preinfuseTimeMs) {
-          currentTargetPressure = preinfusePressure;  // 20 PSI
+          currentTargetPressure = preinfusePressure;
         } else {
-          currentTargetPressure = targetPressureBrew;  // Switch to 70 PSI after 5 seconds
+          currentTargetPressure = targetPressureBrew;
         }
         
         pc.setSetpoint(currentTargetPressure);
