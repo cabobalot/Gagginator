@@ -200,7 +200,13 @@ void mainLoop(void * pvParameters) {
       break;
     case STEAM_STATE:
       // Steam mode uses percentage for direct control, doesn't use PID
-      pc.setPercentage(steamPercentage);
+      if (currentPressure < 30.0f) { // only run pump when pressure is lower. this should mean only running when the valve is open.
+        pc.setPercentage(steamPercentage);
+      }
+      else {
+        pc.setAlwaysOff();
+      }
+      
       digitalWrite(PIN_SOLENOID, LOW);
       // currentTargetPressure is for display, can be set to percentage value (optional)
       currentTargetPressure = (float)steamPercentage;  // Display percentage value
